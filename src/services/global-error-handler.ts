@@ -1,13 +1,19 @@
 import { Response, Request, NextFunction } from "express";
+import { ApiErrors } from "../errors/api-errors";
 
-const errorHandler = async (func: Function) =>
-  async (req: Request, res: Response, next?: NextFunction) => {
+export const errorHandler = (handler: any) =>
+  async (req: Request, res: Response, next: NextFunction, ...args) => {
     try {
-      await func(req, res, next);
+      await handler(req, res, next, ...args);
     } catch (error) {
-      const { message, status } = error;
-      res.status(status).json({ message });
+      next(error);
     }
   }
 
-  module.exports = errorHandler;
+export const errorHandlerMiddleware = (error: ApiErrors | Error, req: Request, res: Response) => {
+  if (error instanceof ApiErrors) {
+    res.status(error.status).json({ message: error.message })
+  } else {
+    res.status(500).json({ message: "Server error"})
+  }
+}

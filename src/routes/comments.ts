@@ -1,16 +1,33 @@
 import { Router } from "express";
 import { Comments } from "../controllers/comment";
-const errorHandler = require("../services/global-error-handler");
-
+import { errorHandler } from "../services/global-error-handler";
+import { authMiddleware } from "../middlewares/authorization";
 
 export const router = Router();
 const comments = new Comments();
 
-router.get("/", comments.getMany);
-router.get("/item/:id", errorHandler(comments.getOne));
+router.get(
+  "/:articleId",
+  errorHandler(comments.getCommentsForArticle)
+);
 
-router.post("/", comments.create);
+router.get(
+  "/item/:id",
+  errorHandler(comments.getOne)
+);
 
-router.put("/:id", comments.update);
+router.post(
+  "/",
+  errorHandler(comments.create)
+);
 
-router.delete("/:id", comments.delete);
+router.put(
+  "/:id",
+  errorHandler(comments.update)
+);
+
+router.delete(
+  "/:id",
+  [authMiddleware],
+  errorHandler(comments.delete)
+);

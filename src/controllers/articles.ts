@@ -1,96 +1,51 @@
-import {Request, Response} from "express";
-import { Article } from "../models/article";
+import { Request, Response } from "express";
+import ArticlesService from "../services/articles-service";
+import { ApiErrors } from "../errors/api-errors";
 
 export class Articles {
 
   async getAll(req: Request, res: Response) {
-    try {
-      const articles = await Article.find({});
-      res.status(200).send(articles);
-    } catch (e) {
-      console.log(e);
-      res.status(400).json({ message: 'Something went wrong with receiving active articles' })
-    }
+    const articles = await ArticlesService.getAll();
+    res.status(200).send(articles);
   };
 
   async getActive(req: Request, res: Response) {
-    try {
-      const articles = await Article.find({ active: true });
-      res.status(200).send(articles);
-    } catch (e) {
-      console.log(e);
-      res.status(400).json({ message: 'Something went wrong with receiving active articles' })
-    }
+    const articles = await ArticlesService.getActive();
+    res.status(200).send(articles);
   };
 
   async getInactive(req: Request, res: Response) {
-    try {
-      const articles = await Article.find({ active: false });
-
-      res.status(200).json(articles);
-    } catch (e) {
-      console.log(e);
-      res.status(400).json({ message: 'Something went wrong with receiving inactive articles' })
-    }
+    const articles = await ArticlesService.getInactive();
+    res.status(200).json(articles);
   };
 
   async getOne(req: Request, res: Response) {
-    try {
-      const { id } = req.query;
-      const article = await Article.findOne({ _id: id });
+    const { id } = req.query;
+    const article = await ArticlesService.getOne(id as string);
 
-      if (!article) {
-        return res.status(404).json({ message: "Article not found" });
-      }
-
-      res.status(200).json(article);
-
-    } catch (e) {
-      console.log(e);
-      res.status(400).json({ message: 'Something went wrong with getting article' })
+    if (!article) {
+      throw ApiErrors.notFound();
     }
+
+    res.status(200).json(article);
   };
 
   async create(req: Request, res: Response) {
-    try {
-      const {
-        title,
-        text,
-        author
-      } = req.body;
+    const {
+      title,
+      text,
+      author
+    } = req.body;
 
-      const date = new Date();
+    const saveResult = await ArticlesService.create(title, text, author);
 
-      const newArticle = new Article({
-        title,
-        text,
-        author,
-        date: date.toLocaleString()
-      });
-
-      await newArticle.save();
-
-      return res.status(200).json();
-    } catch (e) {
-      console.log(e);
-      res.status(400).json({ message: "Create article error" });
-    }
+    return res.status(200).json(saveResult);
   };
 
   async delete(req: Request, res: Response) {
-    try {
-      const { id } = req.query;
-      const result = await Article.deleteOne({ _id: id });
+    const { id } = req.query;
+    const deleteResult = await ArticlesService.delete(id as string);
 
-      if (!result.deletedCount) {
-        return res.status(404).json({ message: "Article not found" });
-      }
-
-      res.status(200).json({message: "OK"});
-
-    } catch (e) {
-      console.log(e);
-      res.status(400).json({ message: 'Something went wrong with getting article' })
-    }
+    res.status(200).json(deleteResult);
   };
 }

@@ -1,19 +1,34 @@
 import { Router } from "express";
 import { check } from "express-validator";
 import { Authorization } from "../controllers/authorization";
+import { errorHandler } from "../services/global-error-handler";
 
 export const router = Router();
-
 const auth = new Authorization();
 
-router.post("/registration",
+router.post(
+  "/registration",
   [
     check("username", "Има пользователя не должно быть пустым").notEmpty(),
-    check("password","Парольдолжен быть длиннее 3 символов").isLength({min: 3})
+    check("password", "Пароль должен быть длиннее 3 символов").isLength({ min: 3 })
   ],
-  auth.registration);
-router.post("/login", auth.login);
-router.post("/logout");
+  errorHandler(auth.registration)
+);
 
-router.get("/refresh");
-router.get("/users", auth.users);
+router.post(
+  "/login",
+  errorHandler(auth.login)
+);
+
+router.post(
+  "/logout"
+);
+
+router.get(
+  "/refresh"
+);
+
+router.get(
+  "/users",
+  errorHandler(auth.users)
+);
