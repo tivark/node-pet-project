@@ -27,7 +27,11 @@ class ArticlesService {
     return article;
   };
 
-  async create( title, text, author ) {
+  async create(
+    title: string,
+    text: string,
+    author: string,
+  ) {
     const date = new Date();
     const newArticle = new Article({
       title,

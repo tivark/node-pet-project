@@ -22,6 +22,13 @@ export class ApiErrors extends Error {
     );
   }
 
+  static userExist() {
+    return new ApiErrors(
+      400,
+      "User already exist"
+    );
+  }
+
   static permissionRequired(){
     return new ApiErrors(
       403,

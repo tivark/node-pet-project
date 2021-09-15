@@ -2,16 +2,16 @@ import bcrypt from "bcryptjs";
 import { User } from "../models/user";
 import { TokenService } from "./jwt-service";
 import { ApiErrors } from "../errors/api-errors";
+import { UserDataType } from "src/types/user-data";
 
 class AuthorizationService {
-  async registration(userData) {
-    console.log(userData)
+  async registration(userData: UserDataType) {
     const { username, password, role } = userData;
 
     const usernameRegexp = new RegExp(username, 'i');
     const existUser = await User.findOne({ username: usernameRegexp });
     if (existUser) {
-      throw new Error("User already exist");
+      throw ApiErrors.userExist();
     }
 
     const hashPassword = bcrypt.hashSync(password, 7);
@@ -22,7 +22,7 @@ class AuthorizationService {
     return saveResult;
   }
 
-  async login(username, password) {
+  async login(username: string, password: string) {
 
     const usernameRegexp = new RegExp(username, 'i');
     const user = await User.findOne({ username: usernameRegexp });

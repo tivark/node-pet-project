@@ -13,12 +13,6 @@ router.get(
 );
 
 router.get(
-  "/active",
-  [authMiddleware, permissionMiddleware(["ADMIN"])],
-  errorHandler(articles.getInactive)
-);
-
-router.get(
   "/inactive",
   [authMiddleware, permissionMiddleware(["ADMIN"])],
   errorHandler(articles.getInactive)
